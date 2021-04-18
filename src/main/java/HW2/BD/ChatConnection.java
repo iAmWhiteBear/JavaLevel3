@@ -26,4 +26,12 @@ public class ChatConnection {
             throwables.printStackTrace();
         }
     }
+
+    public static void rollback(Connection connection){
+        try {
+            connection.rollback();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
 }

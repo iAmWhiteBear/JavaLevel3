@@ -37,11 +37,14 @@ public class BaseOperations {
         boolean result = false;
         Connection connection = ChatConnection.connect();
         try{
+            connection.setAutoCommit(false);
             PreparedStatement ps = connection.prepareStatement(String.format("UPDATE %s SET %s = ? WHERE %s = ?",LOGINTABLE,COLUMNNICKNAME,COLUMNLOGIN));
             ps.setString(1, newNick);
             ps.setString(2,user.getLogin());
             result = ps.execute();
+            connection.commit();
         } catch (SQLException throwables) {
+            ChatConnection.rollback(connection);
             throwables.printStackTrace();
         }finally {
             ChatConnection.close(connection);
