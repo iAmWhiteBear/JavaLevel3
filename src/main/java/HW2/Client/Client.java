@@ -9,7 +9,6 @@ class Client {
         connection = new ClientConnection();
         //подключение графики и отправка сообщений
         morda = new ChatFrame(connection::sendMessage);
-        History.restoreLast(100,morda.getChatConsumer());
 
         new Thread(() ->{
             String message;
@@ -18,7 +17,6 @@ class Client {
                 message = connection.receiveMessage();
                 if (message.split("\\s").length>1){
                     morda.getChatConsumer().accept(message);
-                    History.writeToFile(message);
                 }
             }
         }).start();

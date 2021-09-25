@@ -1,4 +1,4 @@
-package HW2.Client;
+package HW2.Server;
 
 import javax.sound.sampled.FloatControl;
 import java.io.*;
@@ -7,9 +7,14 @@ import java.util.Deque;
 import java.util.function.Consumer;
 
 public class History {
-    private static final String filePath = "localHistory.txt";
+    private final String filePath;
 
-    public static void writeToFile(String line){
+    public History(String username) {
+        String basefilePath = "userHistory.txt";
+        filePath = username+ basefilePath;
+    }
+
+    public void writeToFile(String line){
         //добавление очередной записи в файл
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(filePath,true))) {
             writer.append(line).append("\n");
@@ -18,7 +23,7 @@ public class History {
         }
     }
 
-    public static void restoreLast(int nLines, Consumer<String> consumer){
+    public void restoreLast(int nLines, Consumer<String> consumer){
         //прочитать из файла все линии и сохранить сколько надо
         Deque<String> deq = new ArrayDeque<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {

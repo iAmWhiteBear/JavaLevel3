@@ -19,6 +19,7 @@ public class ClientHandler {
     private final int TIMEOUT = 120;
     private volatile boolean authorized = false;
     private volatile boolean streamController = true;
+    private History history;
 
 
     public ClientHandler(Socket clientSocket, MultiServer multiServer) {
@@ -48,6 +49,8 @@ public class ClientHandler {
                 Optional<User> userMayBe = BaseOperations.findUserByLoginPassword(inputLine[1], inputLine[2]);
                 if (userMayBe.isPresent()) {
                     user = userMayBe.get();
+                    //регистрация класса истории, с нужным префиксом
+                    history = new History(userMayBe.get().getLogin());
                     authorized = true;
                     return true;
                 } else sendMessage("this login/password not found");
@@ -85,6 +88,8 @@ public class ClientHandler {
 
     public void sendMessage(String message) {
         try {
+            //запись в историю исходащих сообщений
+            history.writeToFile(message);
             output.writeUTF(message);
         } catch (IOException e) {
             throw new RuntimeException(socket + " timeout disconnect");
@@ -100,7 +105,11 @@ public class ClientHandler {
                 switch (messageSep[0]){
                     case "/w":      sendWhisper(messageSep); break;
                     case "/nick":   changeNickTo(messageSep[1]);break;
-                    default: server.broadcast(String.format("%s: %s", user.getName(), messageRaw));
+                    default: {
+                        //запись в историю входащих сообщений
+                        history.writeToFile(messageRaw);
+                        server.broadcast(String.format("%s: %s", user.getName(), messageRaw));
+                    }
                 }
             } catch (IOException e) {
                 //процедура потери связи с клиентом
